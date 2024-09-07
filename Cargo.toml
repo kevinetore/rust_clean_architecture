@@ -1,0 +1,13 @@
+[workspace]
+members = [
+    "core/diesel",
+    "core/rocket",
+    "features",
+]
+
+# Optional: common dependencies across workspace members
+[workspace.dependencies]
+rocket = {  version = "0.5.0-rc.2", features = ["json"] }
+chrono = {  version = "0.4.38", features = ["serde"] }
+diesel = { version = "2.2.4", features = ["postgres", "r2d2", "chrono"] }
+diesel_cli = { version = "2.2.4", features = ["postgres"] }

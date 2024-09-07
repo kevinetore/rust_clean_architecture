@@ -1,0 +1,15 @@
+[package]
+name = "core_rocket"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rocket = { workspace = true }
+chrono = { workspace = true}
+features = { path = "../../features" }
+diesel = { workspace = true}
+core_diesel = { path = "../diesel" }
+
+[[bin]]
+name = "core_rocket"
+path = "server/main.rs"
