@@ -1,8 +1,8 @@
-use serde::{Deserialize, Serialize};
 use crate::books::domain::entity::book::BookEntity;
-use std::convert::{From, Into};
-use diesel::{Insertable, Queryable, Selectable};
 use core_diesel::tables::schema::books;
+use diesel::{Insertable, Queryable, Selectable};
+use serde::{Deserialize, Serialize};
+use std::convert::{From, Into};
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(table_name = books)]
