@@ -1,8 +1,8 @@
-use diesel::{PgConnection, RunQueryDsl};
+use diesel::{PgConnection, QueryDsl, RunQueryDsl, ExpressionMethods};
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::result::Error;
-use core_diesel::tables::schema::books::dsl::books;
-use crate::books::data::model::book::BookModel;
+use core_diesel::tables::schema::books::dsl::*;
+use crate::books::data::model::book::{BookModel, NewBookModel};
 
 pub struct BooksDao {
     pool: Pool<ConnectionManager<PgConnection>>,
@@ -13,16 +13,41 @@ impl BooksDao {
         BooksDao { pool }
     }
 
-    pub async fn create_book<'a>(&'a self, book: &'a BookModel) -> Result<&BookModel, Error> {
+    pub fn create_book(&self, book: NewBookModel) -> Result<BookModel, Error> {
         let mut conn = self.pool.get().expect("couldn't get db connection from pool");
 
         let query_result = diesel::insert_into(books)
             .values(book)
-            .execute(&mut conn);
+            .get_result::<BookModel>(&mut conn);
 
         match query_result {
-            Ok(_) => Result::Ok(book),
+            Ok(data) => Result::Ok(data),
             Err(_) => Err(Error::NotFound)
+        }
+    }
+
+    pub fn get_book(&self, book_id: i32) -> Result<BookModel, Error> {
+        let mut conn = self.pool.get().expect("couldn't get db connection from pool");
+
+        let query_result = books.find(book_id)
+            .first(&mut conn);
+
+        match query_result {
+            Ok(book) => Result::Ok(book),
+            Err(e) => Err(e)
+        }
+    }
+
+    pub fn delete_book(&self, book_id: i32) -> Result<(), String> {
+        let mut conn = self.pool.get().expect("couldn't get db connection from pool");
+
+        let query_result = diesel::delete(
+            books.filter(id.eq(book_id))
+        ).execute(&mut conn);
+
+        match query_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e.to_string())
         }
     }
 }

@@ -1,7 +1,7 @@
 use diesel::PgConnection;
 use diesel::r2d2::{ConnectionManager, Pool};
 use crate::books::data::data_sources::local::dao::books_dao::BooksDao;
-use crate::books::data::model::book::BookModel;
+use crate::books::data::model::book::{NewBookModel};
 use crate::books::domain::entity::book::BookEntity;
 use crate::books::domain::repository::book_repository::BookRepository;
 
@@ -18,26 +18,38 @@ impl BooksRepositoryImpl {
 }
 
 impl BookRepository for BooksRepositoryImpl {
-    async fn create(&mut self, book: &BookEntity) -> Result<BookEntity, String> {
-        let book_model = BookModel::from(book);
+    fn create(&mut self, book: BookEntity) -> Result<BookEntity, String> {
+        let book_model = NewBookModel::from(book);
         let mut dao = &mut self.dao;
 
-        match dao.create_book(&book_model).await {
+        match dao.create_book(book_model) {
             // book.into will convert BookEntity to BookModel
             Ok(book) => Ok(book.into()),
             Err(e) => Err(e.to_string()),
         }
     }
 
-    fn read(&self, _id: i32) -> Result<BookEntity, String> {
-        todo!()
+    fn get(&self, id: i32) -> Result<BookEntity, String> {
+        let mut dao = &self.dao;
+        let book = dao.get_book(id);
+
+        match book {
+            Ok(book) => Ok(book.into()),
+            Err(e) => Err(e.to_string()),
+        }
     }
 
     fn update(&self, _book: &BookEntity) -> Result<BookEntity, String> {
         todo!()
     }
 
-    fn delete(&self, _id: i32) -> Result<BookEntity, String> {
-        todo!()
+    fn delete(&self, id: i32) -> Result<(), String> {
+        let mut dao = &self.dao;
+        let delete_result = dao.delete_book(id);
+
+        match delete_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e.to_string()),
+        }
     }
 }
